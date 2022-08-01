@@ -25,7 +25,7 @@ services:
     ports:
       - '8080:80'
     environment:
-      PMA_HOST: db
+      PMA_HOST: ${DB_HOST}
       MYSQL_ROOT_PASSWORD: root
     networks:
       - wpsite
@@ -35,25 +35,39 @@ services:
       - db
     image: wordpress:latest
     container_name: ${WORDPRESS_WEBSITE_TITLE}_wp
+    extra_hosts:
+      - "cedc.loc:127.0.0.1"
+    hostname: cedc.loc
     ports:
-      - '8000:80'
+      - "80:80"
     restart: always
-    volumes: ['./${SITE_DIR}:/var/www/html', './uploads.ini:/usr/local/etc/php/conf.d/uploads.ini']
+    volumes: ['./${SITE_DIR}:/var/www/html', './vhosts:/etc/apache2/sites-enabled']
     environment:
-      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_HOST: ${DB_HOST}
       WORDPRESS_DB_USER: ${DB_USER}
       WORDPRESS_DB_NAME: ${DB_NAME}
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
       WORDPRESS_TABLE_PREFIX: ${WP_PREFIX}
+      maildev_host: maildevt3
+
     networks:
       - wpsite
+  maildevt3:
+    depends_on:
+      - wordpress
+    image: maildev/maildev
+    container_name: maildevt3
+    ports:
+      - "1080:80"
+    links:
+      - wordpress
   # WP-CLI
   cli:
     build: 
       context: ./cli/
     container_name: wpcli
     image: cli
-    volumes: ['./${SITE_DIR}:/var/www/html']
+    volumes: ['./${SITE_DIR}:/var/www/html', './cli/wp-cli.yml:/var/www/html/wp-cli.yml']
     
     networks:
      - wpsite

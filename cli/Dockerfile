@@ -2,6 +2,9 @@ FROM wordpress:cli
 
 USER root
 # Install make tool
+USER root
+RUN apk add openssh-client
+
 RUN apk add --no-cache make
 RUN apk add dos2unix --update-cache
 COPY entrypoint.sh /scripts/

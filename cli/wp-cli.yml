@@ -1,0 +1,9 @@
+@prod:
+  ssh: dev_user@example.com~/webapps/production
+@dev:
+  ssh: cedc_qualif'@'192.168.16.2/var/www/html
+@local:
+  ssh: vagrant:default
+@both:
+  - @prod
+  - @dev
